@@ -16,33 +16,14 @@
 > project. Run section 1, which reports the hardware you'll be training on.
 > Everything else waits until you have data.
 >
-> Nothing to upload, nothing to connect, no accounts and no keys. The notebook
-> runs on your machine and writes next to your code.
->
-> **The rest of this file is your submission.** Fill it in as you go.
 
 ---
-
-<!-- ─────────────────────────────────────────────────────────────────────────
-     HOW TO USE THIS FILE
-
-     Unit 5 asks for the first five sections. Unit 6 adds the five below them.
-
-     Everything is pasted as TEXT. No screenshots, no images.
-
-     ⚠️ The confusion matrix especially. The notebook prints one as a markdown
-     table, ready to copy. A screenshot of a matrix earns nothing. Paste the
-     table.
-     ───────────────────────────────────────────────────────────────────────── -->
 
 <!-- ═══════════════════════ UNIT 5 — THE BUILD ═══════════════════════ -->
 
 ## What This Does
 
-<!-- Your community, and what your classifier sorts posts into. Three or four
-     sentences. -->
-
-
+TakeMeter sorts posts from r/Seattle, a public subreddit about Seattle, WA, into three labels. `report` covers a specific event or fact, or a link to a news article. `opinion` covers a view or rant with nothing checkable behind it. `heads_up` covers a message addressed to a stranger or to the community, such as a lost-item notice, a warning, or a note of sympathy. These labels are provisional until Milestone 2.
 
 ---
 

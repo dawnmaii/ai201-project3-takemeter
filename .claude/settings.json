@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"/c/Users/dawnm/.claude/plans/pasted-content-id-2f74-unit-5-groovy-parrot.md\" CHECKLIST.md && git status --short)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\dawnm\\.claude\\plans"
+    ]
+  }
+}
