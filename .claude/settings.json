@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cp \"/c/Users/dawnm/.claude/plans/pasted-content-id-2f74-unit-5-groovy-parrot.md\" CHECKLIST.md && git status --short)"
+      "Bash(cp \"/c/Users/dawnm/.claude/plans/pasted-content-id-2f74-unit-5-groovy-parrot.md\" CHECKLIST.md && git status --short)",
+      "Bash(cp labels.csv /c/Users/dawnm/labels_backup_before_format.csv)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe -)",
+      "Bash(.venv/Scripts/python.exe -c ' *)",
+      "Bash(ls -la *)",
+      "Read(//c/Users/dawnm/**)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe -c ' *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\dawnm\\.claude\\plans"

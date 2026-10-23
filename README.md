@@ -19,21 +19,13 @@
 
 ---
 
-<!-- ═══════════════════════ UNIT 5 — THE BUILD ═══════════════════════ -->
-
 ## What This Does
 
-TakeMeter sorts posts from r/Seattle, a public subreddit about Seattle, WA, into three labels. `report` covers a specific event or fact, or a link to a news article. `opinion` covers a view or rant with nothing checkable behind it. `heads_up` covers a message addressed to a stranger or to the community, such as a lost-item notice, a warning, or a note of sympathy. These labels are provisional until Milestone 2.
+TakeMeter sorts posts from r/Seattle, a public subreddit about Seattle, WA, into three labels. `report` covers a specific event or fact, or a link to a news article. `opinion` covers a view or rant with nothing checkable behind it. `heads_up` covers a message addressed to a stranger or to the community, such as a lost-item notice, a warning, or a note of sympathy.
 
 ---
 
 ## Label Taxonomy
-
-<!-- Each label: a one-sentence definition and two real examples from your
-     reading. Then your decision rule for the hardest boundary.
-
-     The decision rule is worth a point on its own and it's the thing most
-     people leave out. Every taxonomy has a hardest boundary. Name yours. -->
 
 ### `report`
 
@@ -42,7 +34,7 @@ TakeMeter sorts posts from r/Seattle, a public subreddit about Seattle, WA, into
 **Example 1:**
 > "Seattle Sued Again Sued Again For Teenagers Death at Gas Works Park"
 >
-> https://www.seattletimes.com/seattle-news/seattle-sued-again-for-teenagers-death-at-gas-works-park/
+> <https://www.seattletimes.com/seattle-news/seattle-sued-again-for-teenagers-death-at-gas-works-park/>
 >
 > The family of a 15-year-old who fell to his death at Gas Works Park last summer is again suing the city for failing to maintain and secure the park’s towering coal plant structure, despite decades of evidence pointing toward serious safety concerns.
 
@@ -104,32 +96,29 @@ TakeMeter sorts posts from r/Seattle, a public subreddit about Seattle, WA, into
 
 ### The hardest boundary
 
-**Which two labels:** `heads_up` and `report`
+**Which two labels:** `heads_up` and `opinion`, plus the `report`/`heads_up` boundary
 
 **The decision rule I used every time:**
-If it's addressed to a stranger in the community (ex. "to the person who...") or the community in general, it's a `heads_up`. Otherwise if the post can be checked against a record and names a specific event, date, or source that you could look up, it's a `report`. A post can argue and still be a `report` if it names a checkable figure or source. Anything else is `opinion`.
+If it's addressed to a stranger in the community (ex. "to the person who...") or the community in general WITHOUT an opinion or view of its own, it's a `heads_up`. If the post is addressed to the community and also states a view, it's an `opinion`. If the post can be checked against a record and names a specific event, date, or source that you could look up, it's a `report`. A post can argue and still be a `report` if it names a checkable figure or source. Anything else is `opinion`.
 
 ---
 
 ## The Dataset
 
-<!-- Where you collected from, how you labelled, your counts, and three hard
-     cases. -->
-
 **Where the posts came from:** the r/Seattle subreddit.
 
-**How I labelled them:** I read each post and its content, then checked with my labeling definitions to determine the final label.
+**How I labelled them:** I read each post and its content, then checked with my initial labeling definitions to determine the final label. I decided to add a tie-break after labeling the cold set so it was easier to distinguish between an `opinion` post and a `heads_up` post. I then had AI pre-label the posts that were not in the cold set. I read all 286 AI pre-labels, corrected 34 (denoted with "corrected" in the csv file in the "note" column), and accepted the other 252 as they were.
 
 **Counts per label:**
 
 | Label | Count | Share |
-|---|---|---|
-| `report` |  |  |
-| `opinion` |  |  |
-| `heads_up` |  |  |
-| **Total** |  | 100% |
+| --- | --- | --- |
+| `report` | 38 | 12% |
+| `opinion` | 88 | 28% |
+| `heads_up` | 189 | 60% |
+| **Total** | 315 | 100% |
 
-### Three hard cases
+### Four hard cases
 
 **1.**
 > *The post:* I paid a drummer to follow the annoying preacher around. Totally worth it.
@@ -152,6 +141,13 @@ If it's addressed to a stranger in the community (ex. "to the person who...") or
 >
 > *I chose, because:* `heads_up`, since the rule checks addressed-to-someone first. OP made a specific request to a stranger in the community for the dog's vaccination records.
 
+**4.**
+> *The post:* What do you guys think about buying a condo in this Seattle market?
+>
+> *Could have been:* `heads_up`
+>
+> *I chose, because:* `opinion`, because even though the title addresses the community (rule 1), OP's opinion on the housing market was what led to the question (rule 2). It is not a question alone.
+
 ---
 
 ## The Training Run
@@ -168,8 +164,6 @@ If it's addressed to a stranger in the community (ex. "to the person who...") or
 split. If a label had fewer than about 8 in test, say so — it explains a lot
 of next unit's variance. -->
 
-
-
 ---
 
 ## How I Used AI
@@ -181,13 +175,13 @@ of next unit's variance. -->
      workflow and disclosing it costs you nothing. Not disclosing it is the
      problem. -->
 
-**Moment 1**
+### Moment 1
 
 - *What I asked for:*
 - *What came back:*
 - *What I changed:*
 
-**Moment 2**
+### Moment 2
 
 - *What I asked for:*
 - *What came back:*
@@ -222,8 +216,6 @@ of next unit's variance. -->
 <!-- If the baseline matched your trained model, your fine-tuning added
      nothing — and that is a real finding, not a failure. Say it plainly. -->
 
-
-
 ---
 
 ## Run Log — Before
@@ -255,8 +247,6 @@ of next unit's variance. -->
      direction. "7 real analysis posts were called hot_take and only 3 went the
      other way" is a direction, not just an error rate. -->
 
-
-
 ---
 
 ## Verdicts and Diagnoses
@@ -283,8 +273,6 @@ of next unit's variance. -->
      have that can tell a LABELLING problem from a MODEL problem, and this
      section is graded on whether you used it that way. -->
 
-
-
 ---
 
 ## Agreement Report
@@ -295,7 +283,7 @@ of next unit's variance. -->
      data/staff_taxonomy.md, not your own — so every argument below is made
      from those definitions and those decision rules. -->
 
-**Agreement rate:** ___ / 30 = ___%
+**Agreement rate:** ___/ 30 =___%
 
 <!-- Nobody grades this number. A 60% who argues every disagreement from the
      stated rules beats a 95% who wrote "staff was right" nine times. Several
@@ -337,8 +325,6 @@ of next unit's variance. -->
 
 **What the pattern in my disagreements tells me:**
 
-
-
 ---
 
 ## The Improvement
@@ -362,21 +348,15 @@ of next unit's variance. -->
 <!-- If it didn't, say so. Relabelling that didn't help is a genuinely
      interesting result and earns full credit. -->
 
-
-
 ---
 
 ## What's Still Broken
 
 <!-- For each criterion still missed: what you'd do, and why you stopped. -->
 
-
-
 **The gap between what I meant my labels to capture and what the model
 learned:**
 <!-- Two sentences. Your confusion matrix is the evidence. -->
-
-
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
