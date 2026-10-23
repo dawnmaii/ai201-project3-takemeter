@@ -171,26 +171,19 @@ This is the "before" run for unit 6.
 
 ## How I Used AI
 
-<!-- Two specific moments — what you asked, what came back, what you changed.
-
-     ⚠️ Plus disclosure of any pre-labelling. If you had a model pre-label a
-     batch and then read and corrected every one, say that. It's an allowed
-     workflow and disclosing it costs you nothing. Not disclosing it is the
-     problem. -->
-
 ### Moment 1
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked for AI to pre-label the remaining posts that were not in the cold set, after defining my tie-breaking rules and requested format for the output: each row marked "pre-labelled" in notes.
+- *What came back:* A label for every row, with the note column marked. I checked the output for valid labels and exact spelling.
+- *What I changed:* I read every AI pre-label, corrected 34 of them (marked "pre-labelled, corrected" in notes), and accepted the other 252. The 20 cold posts were labeled by me without AI use.
 
 ### Moment 2
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked AI to review each of the five criteria for understanding and checkability by someone who couldn't ask me what I meant, as well as whether the numbers behind each criterion made sense given my data.
+- *What came back:* Multiple problems were flagged throughout. For example, criterion 3 was initially set to 75 posts per label minimum. That was impossible with 200 initial posts and three labels. AI didn't write any criteria for me.
+- *What I changed:* I fixed the arithmetic, and the criteria and reasons are my own. Later I revised criterion 3 to 30 posts, with a stated reason, before training.
 
-**Pre-labelling disclosure:**
+**Pre-labelling disclosure:** I had AI pre-label the posts that were not included in the cold set, after which I went through every AI pre-label and corrected those I didn't agree with. Anything without a "corrected" or "cold" keyword in the notes column has been pre-labelled by AI and approved by me.
 
 <!-- ═══════════════════════ UNIT 6 — THE TEST ═══════════════════════
 
