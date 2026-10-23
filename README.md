@@ -1,22 +1,5 @@
 # TakeMeter
 
-> ### 👋 Start here
->
-> **New to this repo? Read [RUNNING.md](RUNNING.md) first** — setup, the
-> notebook, the baseline, and what to do when something breaks.
->
-> Once `python test.py` passes:
->
-> ```bash
-> head -5 data/practice_labels.csv     # the shape your labels.csv needs
-> ```
->
-> Then open `takemeter.ipynb` **in this folder** — in VS Code, or with
-> `jupyter notebook` if you prefer. Pick the kernel: the `.venv` inside this
-> project. Run section 1, which reports the hardware you'll be training on.
-> Everything else waits until you have data.
->
-
 ---
 
 ## What This Does
@@ -152,17 +135,37 @@ If it's addressed to a stranger in the community (ex. "to the person who...") or
 
 ## The Training Run
 
-<!-- Your starting model, your settings, and anything you changed and why. -->
+**Base model:** distilbert-base-uncased
 
-**Base model:**
+**Settings:**
 
-**Settings:** <!-- epochs, learning rate, batch size, seed -->
+- device: cpu
+- torch: 2.14.1+cpu
+- epochs: 3
+- learning rate: 2e-5
+- batch size: 16
+- seed: 42
+- max length: 128
 
-**Anything I changed from the defaults, and why:**
+**Anything I changed from the defaults, and why:** N/A
 
-**Split sizes:** <!-- train / val / test, and per-label counts in the test
-split. If a label had fewer than about 8 in test, say so — it explains a lot
-of next unit's variance. -->
+**Split sizes:**
+
+| Label    | Train | Val | Test |
+|----------|-------|-----|------|
+| opinion  | 62    | 13  | 13   |
+| report   | 26    | 6   | 6    |
+| heads_up | 131   | 29  | 29   |
+| TOTAL    | 219   | 48  | 48   |
+
+There were few `report` posts to begin with, hence the split size being 6 test posts. Since it's under the 8-post guideline, its scores will be noisy.
+
+Upon the first run (took 3 minutes 27 seconds), validation accuracy stayed at 0.604 across all three epochs, which is the `heads_up` share. Macro F1 stayed at 0.251. My best guess is because `heads_up` posts made up over half the posts, so the model focused only on the `heads_up` label. Would like to test two potential fixes to this:
+
+1. Using more epochs first to allow the model more passes over the training data. With this fix, I predict the model would make more `opinion` and `report` predictions on posts.
+2. Adding class weights to the loss so the model would stop defaulting to the `heads_up` label and predicts `report` and `opinion` posts as those labels.
+
+This is the "before" run for unit 6.
 
 ---
 
