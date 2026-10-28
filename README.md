@@ -185,32 +185,23 @@ This is the "before" run for unit 6.
 
 **Pre-labelling disclosure:** I had AI pre-label the posts that were not included in the cold set, after which I went through every AI pre-label and corrected those I didn't agree with. Anything without a "corrected" or "cold" keyword in the notes column has been pre-labelled by AI and approved by me.
 
-<!-- ═══════════════════════ UNIT 6 — THE TEST ═══════════════════════
-
-     Don't fill these in during unit 5.
-     ═══════════════════════════════════════════════════════════════════ -->
-
 ---
 
 ## Baseline vs. Trained
 
-<!-- Both models on the same posts. `python baseline.py --trained results.json`
-     prints this table for you. -->
-
 | Measure | Baseline | Trained | Difference |
-|---|---|---|---|
-| Overall accuracy |  |  |  |
-| Macro F1 |  |  |  |
-| F1 — `label_one` |  |  |  |
-| F1 — `label_two` |  |  |  |
+| --- | --- | --- | --- |
+| Overall accuracy | 0.667 | 0.604 | -0.062 |
+| Macro F1 | 0.641 | 0.251 | -0.390 |
+| F1 — `heads_up` | 0.737 | 0.753 | +0.016 |
+| F1 — `opinion` | 0.519 | 0.000 | -0.519 |
+| F1 — `report` | 0.667 | 0.000 | -0.667 |
 
 **What I predicted before I looked:**
-<!-- Milestone 1 asks you to write this BEFORE seeing the trained numbers. A
-     prediction made afterwards isn't one. -->
+I expect the trained model to beat the baseline for the `heads_up` posts, since 60% of posts I collected were labeled as `heads_up`. The baseline wins on `report` and `opinion` posts since it read the definitions.
 
 **What the gap actually means:**
-<!-- If the baseline matched your trained model, your fine-tuning added
-     nothing — and that is a real finding, not a failure. Say it plainly. -->
+Fine-tuning added nothing as this run was set up, as the baseline beat the trained model both on accuracy (0.667 vs 0.604 for the trained model) and on macro F1 (0.641 vs 0.251). The trained model also scored 0.000 on `report` and `opinion`; the two labels where the baseline scored 0.667 and 0.519. Then again, the baseline isn't good either, with only 0.667 accuracy compared to the 0.75 target criterion 1 asks for. Its `report` score is also noisy because the test split was below the recommended 8 posts for the notebook, and the F1 score for the `opinion` posts is below the 0.60 target, at a score of 0.519. The trained model gets a 0.753 F1 score for `heads_up` only because it predicts `heads_up` for every post, and a 0.016 gap on 48 posts is within noise.
 
 ---
 
