@@ -211,28 +211,23 @@ Fine-tuning added nothing as this run was set up, as the baseline beat the train
      spread table; the Target and Verdict columns are yours. -->
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
-|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- |
+| 1. Accuracy | >= 0.75 | 0.604 | 0.604 | 0.604 |  |
+| 2. Staff agreement | >= 20/30 |  |  |  |  |
+| 3. >= 30 posts per label | >= 30 | 38 / 88 / 189 | same | same |  |
+| 4. F1 >= 0.60 each label | >= 0.60 | report 0.000, opinion 0.000, heads_up 0.753 | same | same |  |
+| 5. Confidence | see `criteria.md` |  |  |  |  |
 
 ### Confusion matrix
 
-<!-- ⚠️ TYPED AS A MARKDOWN TABLE. The notebook prints one ready to paste.
-     An image of a matrix earns nothing. -->
-
-| true \ predicted |  |  |  |
-|---|---|---|---|
-| **** |  |  |  |
-| **** |  |  |  |
-| **** |  |  |  |
+| true \ predicted | opinion | report | heads_up |
+| --- | --- | --- | --- |
+| **opinion** | 0 | 0 | 13 |
+| **report** | 0 | 0 | 6 |
+| **heads_up** | 0 | 0 | 29 |
 
 **My biggest off-diagonal number, and what it means:**
-<!-- Not "the model made mistakes" — WHICH boundary it didn't learn, and which
-     direction. "7 real analysis posts were called hot_take and only 3 went the
-     other way" is a direction, not just an error rate. -->
+Biggest confusion: 13 real `opinion` posts called `heads_up`. The other direction: 0 real `heads_up` posts called `opinion`. The model predicts `heads_up` for every post: all 13 real `opinion` posts and all 6 real `report` posts land in the `heads_up` column. It has learned nothing about the `opinion`/`heads_up` or `report`/`heads_up` boundaries, and its 0.604 accuracy is just the `heads_up` share of the test split (29 of 48), the same on all three seeds.
 
 ---
 
