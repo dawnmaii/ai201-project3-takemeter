@@ -147,7 +147,7 @@ If it's addressed to a stranger in the community (ex. "to the person who...") or
 - seed: 42
 - max length: 128
 
-**Anything I changed from the defaults, and why:** N/A
+**Anything I changed from the defaults, and why:** N/A for unit 5. In unit 6 I added class weights to the loss (see The Improvement).
 
 **Split sizes:**
 
@@ -165,7 +165,7 @@ Upon the first run (took 3 minutes 27 seconds), validation accuracy stayed at 0.
 1. Using more epochs first to allow the model more passes over the training data. With this fix, I predict the model would make more `opinion` and `report` predictions on posts.
 2. Adding class weights to the loss so the model would stop defaulting to the `heads_up` label and predicts `report` and `opinion` posts as those labels.
 
-This is the "before" run for unit 6.
+This is the "before" run for unit 6. The class-weights fix (fix 2 above) is the one I tested in unit 6; see The Improvement.
 
 ---
 
@@ -184,6 +184,18 @@ This is the "before" run for unit 6.
 - *What I changed:* I fixed the arithmetic, and the criteria and reasons are my own. Later I revised criterion 3 to 30 posts, with a stated reason, before training.
 
 **Pre-labelling disclosure:** I had AI pre-label the posts that were not included in the cold set, after which I went through every AI pre-label and corrected those I didn't agree with. Anything without a "corrected" or "cold" keyword in the notes column has been pre-labelled by AI and approved by me.
+
+### Moment 3
+
+- *What I asked for:* I asked AI to check the criterion 5 diagnosis for accuracy against the threshold numbers in `results_three_seeds_before.json`.
+- *What came back:* A flag that "the gap between the groups is small" was wrong. The confident and unsure groups differ by 20 to 40 points, so the model's confidence does separate right answers from wrong ones. The real problem is that the confident group isn't reliable enough to reach 80%.
+- *What I changed:* I rewrote the criterion 5 verdict and the Diagnoses sentence to say that.
+
+### Moment 4
+
+- *What I asked for:* I asked AI to implement the class-weights change from my diagnosis, in the training function of the notebook.
+- *What came back:* A `WeightedTrainer` subclass that overrides the loss, and a function that computes balanced weights from the training split only.
+- *What I changed:* I ran the notebook, hit a `NameError` for `evaluate` after a kernel restart, and fixed it by re-running the definitions and restoring `results.json` from git so the committed before-run file wasn't overwritten. The loss code was drafted with AI; the run order and the restore were mine.
 
 ---
 
@@ -209,10 +221,10 @@ Fine-tuning added nothing in this run, since the baseline beat the trained model
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 | --- | --- | --- | --- | --- | --- |
-| 1. Accuracy | >= 0.75 | 0.604 | 0.604 | 0.604 | |
-| 2. Staff agreement | >= 20/30 | 19/30 | same | same | |
-| 3. >= 30 posts per label | >= 30 | 38 / 88 / 189 | same | same | |
-| 4. F1 >= 0.60 each label | >= 0.60 | report 0.000, opinion 0.000, heads_up 0.753 | same | same | |
+| 1. Accuracy | >= 0.75 | 0.604 | 0.604 | 0.604 | MISSED |
+| 2. Staff agreement | >= 20/30 | 19/30 | same | same | MISSED |
+| 3. >= 30 posts per label | >= 30 | 38 / 88 / 189 | same | same | MET |
+| 4. F1 >= 0.60 each label | >= 0.60 | report 0.000, opinion 0.000, heads_up 0.753 | same | same | MISSED |
 | 5. Confidence | ≥ 80% correct at 0.6+, ≤ 50% correct below 0.6 | 0.6+: 74% (27) · below: 43% (21) | 0.6+: 77% (30) · below: 33% (18) | 0.6+: 62% (29) · below: 58% (19) | MISSED |
 
 After the first run, I added a threshold measurement to evaluate (section 5) so criterion 5 could be tested at 0.6. Targets are unchanged. Accuracy and the confusion matrix are the same as the first run.
@@ -226,7 +238,7 @@ After the first run, I added a threshold measurement to evaluate (section 5) so 
 | **heads_up** | 0 | 0 | 29 |
 
 **My biggest off-diagonal number, and what it means:**
-On seed 42, 11 of 13 real `opinion` posts are called `heads_up`, the biggest off-diagonal number. The model never predicts `report` on seed 42, and 5 of 6 real `report` posts are called `opinion`. On seeds 7 and 2024 the model does predict `report` and `opinion`, but most of its guesses still go to `heads_up`.
+On seed 42, 11 of 13 real `opinion` posts are called `heads_up`, the biggest off-diagonal number. The model never predicts `report` on seed 42, and 5 of 6 real `report` posts are called `opinion`. On seed 7 the model predicts `report` but never `opinion`, and on seed 2024 it predicts both. Most of its guesses on both seeds still go to `heads_up`.
 
 ### Confusion matrix — after (seed 42)
 
@@ -242,7 +254,7 @@ On seed 42, 11 of 13 real `opinion` posts are called `heads_up`, the biggest off
 
 | # | Criterion | Target | Verdict | How I decided |
 | --- | --- | --- | --- | --- |
-| 1 | Accuracy | >= 0.75 on all seeds | MISSED | 0.604 on all three seeds, all 13+6 `opinion` and report posts predicted as `heads_up` |
+| 1 | Accuracy | >= 0.75 on all seeds | MISSED | 0.604 on all three seeds, all 13+6 `opinion` and `report` posts predicted as `heads_up` |
 | 2 | Staff agreement | ≥ 20 of 30 posts match staff | MISSED | Count posts where my label under the staff taxonomy matches data/staff_labels.csv. My agreement with staff was 63% (19 of 30). |
 | 3 | Balance | >= 30 posts per label | MET | `labels.csv` has 38 `report`, 88 `opinion`, 189 `heads_up` |
 | 4 | F1 | >= 0.60 each label | MISSED | `report` and `opinion` are 0.000 on all three seeds, `heads_up` is 0.753 |
@@ -252,7 +264,7 @@ On seed 42, 11 of 13 real `opinion` posts are called `heads_up`, the biggest off
 
 Missed criteria 1, 4, and 5. The cause is that 315 posts is too small a dataset for three labels (cause 4), and there are only 38 `report` posts (cause 1). Every row in the confusion matrix lands on `heads_up`, and the 0.604 accuracy equals the `heads_up` share of the test split (29 of 48) on all three seeds. The model never learned to separate the labels, and the collapse is the same on every seed, so the split isn't the cause. Its confidence ranks its answers somewhat, but the confident group isn't reliable enough to meet the 80% target. The 0.6 threshold isn't the cause.
 
-Missed criterion 2 (19/30 agreement against a target of 20). The cause is a boundary I applied inconsistently (cause 2). Nine of the eleven disagreements are pile (a): the staff rules answered the question and I applied them loosely. Most of them are Rule 1, where I read a checkable number as decoration. Eight of the ten posts staff labeled analysis I labeled differently. Two disagreements (sp_010 and sp_020) are ambiguous, so I'd argue my reading there. The miss is mostly in how I applied the rules, not in the rules themselves.
+Missed criterion 2 (19/30 agreement against a target of 20). The cause is a boundary I applied inconsistently (cause 2). Nine of the eleven disagreements are pile (a): the staff rules answered the question and I applied them loosely. Most of them are Rule 1, where I read a checkable number as decoration. Eight of the ten posts staff labeled `analysis` I labeled differently. Two disagreements (sp_010 and sp_020) are ambiguous, so I'd argue my reading there. The miss is mostly in how I applied the rules, not in the rules themselves.
 
 ---
 
@@ -379,7 +391,7 @@ Eight of my eleven disagreements are posts staff labeled `analysis`, and I label
 
 ## The Improvement
 
-**What I changed:** Added class weights to the training loss, inverse to each label's frequency in the training split, so a missed report or opinion costs more than a missed `heads_up`. Everything else stayed the same: base model, 3 epochs, learning rate 2e-5, batch 16, and the same three seeds.
+**What I changed:** Added class weights to the training loss, weighted by `n / (k × count)` (balanced to each label's frequency in the training split), so a missed report or opinion costs more than a missed `heads_up`. Everything else stayed the same: base model, 3 epochs, learning rate 2e-5, batch 16, and the same three seeds.
 
 **Which diagnosis pointed at it:** The collapse. On all three seeds the model predicts `heads_up` for every test post, the validation loss on seed 42 only falls from 0.89 to 0.83 over three epochs. That suggests more epochs alone won't change the predictions, while class weights target the cause the matrix shows: `heads_up` is the cheapest answer to the loss.
 
@@ -412,7 +424,7 @@ Partly. Macro F1 rose on all three seeds, from 0.251 to 0.317, 0.371 and 0.459, 
 **The gap between what I meant my labels to capture and what the model
 learned:**
 
-I meant `report` to capture a post that can be checked against a public record. The model learned that `report` is rare: on seed 42 it never predicts `report`, and it sends most real `report` posts to `opinion`. I meant `opinion` to capture an unverifiable personal anecdote. The model learned to send most of those posts to `heads_up`, the majority label. On seeds 7 and 2024 it predicts all three labels, but most of its guesses still go to `heads_up`, so what it learned is closer to "this post is probably `heads_up`" than to the distinctions I wrote down.
+I meant `report` to capture a post that can be checked against a public record. The model learned that `report` is rare: on seed 42 it never predicts `report`, and it sends most real `report` posts to `opinion`. I meant `opinion` to capture an unverifiable personal anecdote. The model learned to send most of those posts to `heads_up`, the majority label. On seed 2024 it predicts all three labels, and on seed 7 it predicts `report` but never `opinion`. Most of its guesses on both seeds still go to `heads_up`, so what it learned is closer to "this post is probably `heads_up`" than to the distinctions I wrote down.
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
