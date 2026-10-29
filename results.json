@@ -47,6 +47,13 @@
     "accuracy_least_confident_third": 0.375,
     "n_per_third": 16
   },
+  "threshold": {
+    "cut": 0.6,
+    "n_confident": 27,
+    "accuracy_confident": 0.7407407407407407,
+    "n_unsure": 21,
+    "accuracy_unsure": 0.42857142857142855
+  },
   "device": "cpu",
   "device_name": "CPU",
   "torch_version": "2.14.1+cpu",

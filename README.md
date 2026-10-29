@@ -201,22 +201,21 @@ This is the "before" run for unit 6.
 I expect the trained model to beat the baseline for the `heads_up` posts, since 60% of posts I collected were labeled as `heads_up`. The baseline wins on `report` and `opinion` posts since it read the definitions.
 
 **What the gap actually means:**
-Fine-tuning added nothing as this run was set up, as the baseline beat the trained model both on accuracy (0.667 vs 0.604 for the trained model) and on macro F1 (0.641 vs 0.251). The trained model also scored 0.000 on `report` and `opinion`; the two labels where the baseline scored 0.667 and 0.519. Then again, the baseline isn't good either, with only 0.667 accuracy compared to the 0.75 target criterion 1 asks for. Its `report` score is also noisy because the test split was below the recommended 8 posts for the notebook, and the F1 score for the `opinion` posts is below the 0.60 target, at a score of 0.519. The trained model gets a 0.753 F1 score for `heads_up` only because it predicts `heads_up` for every post, and a 0.016 gap on 48 posts is within noise.
+Fine-tuning added nothing in this run, since the baseline beat the trained model on accuracy (0.667 vs 0.604 for the trained model) and on macro F1 (0.641 vs 0.251). The trained model also scored 0.000 on `report` and `opinion`; the two labels where the baseline scored 0.667 and 0.519. Then again, the baseline isn't good either, with only 0.667 accuracy compared to the 0.75 target criterion 1 asks for. Its `report` score is also noisy because the test split was below the recommended 8 posts for the notebook, and the F1 score for the `opinion` posts is below the 0.60 target, at a score of 0.519. The trained model gets a 0.753 F1 score for `heads_up` only because it predicts `heads_up` for every post, and a 0.016 gap on 48 posts is within noise.
 
 ---
 
 ## Run Log — Before
 
-<!-- Five criteria across three seeds. The notebook's section 6 prints the
-     spread table; the Target and Verdict columns are yours. -->
-
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 | --- | --- | --- | --- | --- | --- |
-| 1. Accuracy | >= 0.75 | 0.604 | 0.604 | 0.604 |  |
-| 2. Staff agreement | >= 20/30 |  |  |  |  |
-| 3. >= 30 posts per label | >= 30 | 38 / 88 / 189 | same | same |  |
-| 4. F1 >= 0.60 each label | >= 0.60 | report 0.000, opinion 0.000, heads_up 0.753 | same | same |  |
-| 5. Confidence | see `criteria.md` |  |  |  |  |
+| 1. Accuracy | >= 0.75 | 0.604 | 0.604 | 0.604 | |
+| 2. Staff agreement | >= 20/30 | 19/30 | same | same | |
+| 3. >= 30 posts per label | >= 30 | 38 / 88 / 189 | same | same | |
+| 4. F1 >= 0.60 each label | >= 0.60 | report 0.000, opinion 0.000, heads_up 0.753 | same | same | |
+| 5. Confidence | ≥ 80% correct at 0.6+, ≤ 50% correct below 0.6 | 0.6+: 74% (27) · below: 43% (21) | 0.6+: 77% (30) · below: 33% (18) | 0.6+: 62% (29) · below: 58% (19) | MISSED |
+
+After the first run, I added a threshold measurement to evaluate (section 5) so criterion 5 could be tested at 0.6. Targets are unchanged. Accuracy and the confusion matrix are the same as the first run.
 
 ### Confusion matrix
 
@@ -227,103 +226,164 @@ Fine-tuning added nothing as this run was set up, as the baseline beat the train
 | **heads_up** | 0 | 0 | 29 |
 
 **My biggest off-diagonal number, and what it means:**
-Biggest confusion: 13 real `opinion` posts called `heads_up`. The other direction: 0 real `heads_up` posts called `opinion`. The model predicts `heads_up` for every post: all 13 real `opinion` posts and all 6 real `report` posts land in the `heads_up` column. It has learned nothing about the `opinion`/`heads_up` or `report`/`heads_up` boundaries, and its 0.604 accuracy is just the `heads_up` share of the test split (29 of 48), the same on all three seeds.
+The biggest off-diagonal number is 13 real `opinion` posts called `heads_up`, and `report` shows the same pattern (6 of 6 called `heads_up`). The model never predicts `opinion` or `report`, so both boundaries with `heads_up` are unlearned in one direction.
 
 ---
 
 ## Verdicts and Diagnoses
 
-<!-- MET or MISSED against LAST UNIT's target. The target has to hold across
-     all three seeds, not turn up sometimes. -->
-
 | # | Criterion | Target | Verdict | How I decided |
-|---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| --- | --- | --- | --- | --- |
+| 1 | Accuracy | >= 0.75 on all seeds | MISSED | 0.604 on all three seeds, all 13+6 `opinion` and report posts predicted as `heads_up` |
+| 2 | Staff agreement | ≥ 20 of 30 posts match staff | MISSED | Count posts where my label under the staff taxonomy matches data/staff_labels.csv. My agreement with staff was 63% (19 of 30). |
+| 3 | Balance | >= 30 posts per label | MET | `labels.csv` has 38 `report`, 88 `opinion`, 189 `heads_up` |
+| 4 | F1 | >= 0.60 each label | MISSED | `report` and `opinion` are 0.000 on all three seeds, `heads_up` is 0.753 |
+| 5 | Confidence | ≥ 80% correct at 0.6+, ≤ 50% correct below 0.6 | MISSED | The confident group is 62–77% correct on all three seeds, below the 80% target, and the unsure group is 58% correct on seed 2024, above the 50% limit. The model's confidence ranks its answers somewhat, but not reliably enough to meet the target. Source: threshold block in results_three_seeds_before.json. |
 
-**Diagnoses**
+### Diagnoses
 
-<!-- For each miss: the cause, and how you know. The four common causes are:
-     too few examples for a label, a boundary you applied inconsistently, a
-     genuinely hard label pair, and a task the model can't reach from this
-     much data.
+Missed criteria 1, 4, and 5. The cause is that 315 posts is too small a dataset for three labels (cause 4), and there are only 38 `report` posts (cause 1). Every row in the confusion matrix lands on `heads_up`, and the 0.604 accuracy equals the `heads_up` share of the test split (29 of 48) on all three seeds. The model never learned to separate the labels, and the collapse is the same on every seed, so the split isn't the cause. Its confidence ranks its answers somewhat, but the confident group isn't reliable enough to meet the 80% target. The 0.6 threshold isn't the cause.
 
-     ⚠️ Use your agreement report as evidence. It is the only instrument you
-     have that can tell a LABELLING problem from a MODEL problem, and this
-     section is graded on whether you used it that way. -->
+Missed criterion 2 (19/30 agreement against a target of 20). The cause is a boundary I applied inconsistently (cause 2). Nine of the eleven disagreements are pile (a): the staff rules answered the question and I applied them loosely. Most of them are Rule 1, where I read a checkable number as decoration. Eight of the ten posts staff labeled analysis I labeled differently. Two disagreements (sp_010 and sp_020) are ambiguous, so I'd argue my reading there. The miss is mostly in how I applied the rules, not in the rules themselves.
 
 ---
 
 ## Agreement Report
 
-<!-- Your rate against the staff set, and every disagreement adjudicated.
+**Agreement rate:** 19/30 = 63%
 
-     Remember you labelled these 30 under the STAFF taxonomy in
-     data/staff_taxonomy.md, not your own — so every argument below is made
-     from those definitions and those decision rules. -->
+### Disagreement Analysis
 
-**Agreement rate:** ___/ 30 =___%
+### 1. (sp_003)
 
-<!-- Nobody grades this number. A 60% who argues every disagreement from the
-     stated rules beats a 95% who wrote "staff was right" nine times. Several
-     of the 30 were chosen because they're genuinely ambiguous — you should be
-     winning some of these. -->
-
-**Disagreements**
-
-<!-- Three lines each: the post, both labels, and who you think is right and
-     why — grounded in the staff definitions you were both applying.
-
-     Then sort each into one of three piles:
-       (a) the rule covered it and I applied it loosely → a consistency problem
-       (b) the rule genuinely doesn't say               → a gap in the definitions
-       (c) the rule is ambiguous here and my reading is defensible → argue it.
-           This is a legitimate win.
-
-     Pile (a) is the one that matters most for your diagnosis: if you applied a
-     written rule two different ways on 30 posts, that is direct evidence about
-     what you did across your own 200. -->
-
-**1.**
-> *The post:*
+> *The post:* "The club championship scoring changed in 2019 from top-6 to top-10. Since then our B team has finished above the A team twice. That's not depth improving, it's the scoring rewarding turnout."
 >
-> *Staff said / I said:*
+> *Staff said / I said:* `analysis` / `reaction`
 >
-> *My call, and why:*
+> *My call, and why:* `analysis`. Rule 1: the 2019 rule change and the B team result carry the argument.
 >
-> *Which pile:*
+> *Which pile:* (a)
 
-**2.**
-> *The post:*
+### 2. (sp_004)
+
+> *The post:* "Everyone blames the hill at 18 miles. I split the field into people who ran the first half under 1:45 and over, and the slowdown after 18 was almost identical for both groups. If the hill were the problem the fast starters would fall apart harder."
 >
-> *Staff said / I said:*
+> *Staff said / I said:* `analysis` / `hot_take`
 >
-> *My call, and why:*
+> *My call, and why:* `analysis`. Rule 1: the 1:45 split and the comparison of slowdowns carry the argument. The writer doesn't just assert that the hill isn't the cause; the comparison is the test, and the number is what the conclusion rests on.
 >
-> *Which pile:*
+> *Which pile:* (a)
+
+### 3. (sp_005)
+
+> *The post:* "Carbon plates aren't the whole story. My times dropped 2% in the shoes and another 2% the following year in the same pair, when the only thing that changed was going from 35 to 50 miles a week."
+>
+> *Staff said / I said:* `analysis` / `hot_take`
+>
+> *My call, and why:* `analysis`. Rule 1: the two 2% drops are comparable numbers, and the claim that mileage, not shoes, changed the times rests on them. The fact is load-bearing, not decoration.
+>
+> *Which pile:* (a)
+
+### 4. (sp_006)
+
+> *The post:* "Checked the entry lists. 41% of this year's field have never run the distance before, against 26% five years ago. That's why the finish-line photos look different, not because standards dropped."
+>
+> *Staff said / I said:* `analysis` / `reaction`
+>
+> *My call, and why:* `analysis`. Rule 1: the 41% and 26% figures are used to reject a rival explanation (standards dropping), so the numbers carry the argument.
+>
+> *Which pile:* (a)
+
+### 5. (sp_007)
+
+> *The post:* "Ran the same loop in 4C and in 24C within a fortnight, same effort by heart rate. 90 seconds slower in the heat over six miles. People keep saying heat costs you 'a bit' and it's more than that."
+>
+> *Staff said / I said:* `analysis` / `hot_take`
+>
+> *My call, and why:* `analysis`. Rule 1: the 90-second difference over six miles is a measured comparison, and the claim that heat costs more than people say rests on it.
+>
+> *Which pile:* (a)
+
+### 6. (sp_008)
+
+> *The post:* "Went back through the club results going back to 2012. Every single year the number of people who enter the spring marathon and don't start it sits between 18 and 23 percent. It's not a bad-luck year, it's the base rate."
+>
+> *Staff said / I said:* `analysis` / `hot_take`
+>
+> *My call, and why:* `analysis`. Rule 1: the 18–23% range across named years is the fact the argument rests on, and it's used to rule out a one-off explanation. Without the numbers, the claim is a hot take.
+>
+> *Which pile:* (a)
+
+### 7. (sp_009)
+
+> *The post:* "The 10K route was remeasured in 2021 and came out 60 metres long. Everyone comparing PBs from before and after that is comparing two different races, which is about 12 seconds at club pace."
+>
+> *Staff said / I said:* `analysis` / `reaction`
+>
+> *My call, and why:* `analysis`. Rule 1: the 60-metre remeasurement and the 12-second effect are the facts the argument rests on, and they aren't decoration.
+>
+> *Which pile:* (a)
+
+### 8. (sp_010)
+
+> *The post:* "Three of us ran the same session on the same day, different shoes, within 10 seconds of each other over 5 miles. I'm not saying shoes do nothing, but whatever they do was smaller than the noise between three people."
+>
+> *Staff said / I said:* `analysis` / `hot_take`
+>
+> *My call, and why:* `analysis` is the stronger reading, though `hot_take` is defensible. Rule 1: the three-runner comparison is checkable, and the claim that shoes do less than the noise between runners rests on it.
+>
+> *Which pile:* (c)
+
+### 9. (sp_013)
+
+> *The post:* "The club needs to stop pretending the Tuesday session is for everyone. It isn't and it never has been."
+>
+> *Staff said / I said:* `hot_take` / `reaction`
+>
+> *My call, and why:* `hot_take`. Rule 2: the post is about the club as a whole ("The club needs to stop pretending…"), not about the writer's experience, so it's a general claim. It offers no support, so staff's label applies.
+>
+> *Which pile:* (a)
+
+### 10. (sp_017)
+
+> *The post:* "Road racing peaked in about 2015 and everything since has been marketing."
+>
+> *Staff said / I said:* `hot_take` / `reaction`
+>
+> *My call, and why:* `hot_take`. Rule 2: "everything since has been marketing" is a general claim about the sport and nothing about the writer's own recent experience. The year is part of the assertion, not evidence for it, so the post is unsupported.
+>
+> *Which pile:* (a)
+
+### 11. (sp_020)
+
+> *The post:* "Every injury thread on this forum is the same injury and the same three replies."
+>
+> *Staff said / I said:* `hot_take` / `reaction`
+>
+> *My call, and why:* `hot_take`, though it's close. Rule 2: the post makes a general claim about every injury thread on the forum, not a report of the writer's own experience. It sounds observational, but it gives no count, so the claim is asserted, not shown. Staff flagged it as hard for this reason.
+>
+> *Which pile:* (c)
 
 **What the pattern in my disagreements tells me:**
+Eight of my eleven disagreements are posts staff labeled `analysis`, and I labeled only two of staff's ten `analysis` posts `analysis`. Nine of the eleven fall in pile (a), so most of my misses are a consistency problem, not a gap in the taxonomy. Most of them are Rule 1: I read a checkable number as decoration when it carried the argument (sp_004, sp_005, sp_006, sp_007, sp_008). Two are Rule 2 misses on posts I labeled `reaction` that staff called `hot_take` (sp_013, sp_017). Two calls are genuinely ambiguous (sp_010, sp_020), where I'd argue my reading.
 
 ---
 
 ## The Improvement
 
-**What I changed:**
+**What I changed:** Added class weights to the training loss, inverse to each label's frequency in the training split, so a missed report or opinion costs more than a missed `heads_up`. Everything else stayed the same: base model, 3 epochs, learning rate 2e-5, batch 16, and the same three seeds.
 
-**Which diagnosis pointed at it:**
+**Which diagnosis pointed at it:** The collapse. On all three seeds the model predicts `heads_up` for every test post, the validation loss on seed 42 only falls from 0.89 to 0.83 over three epochs. That suggests more epochs alone won't change the predictions, while class weights target the cause the matrix shows: `heads_up` is the cheapest answer to the loss.
 
 ### Run Log — After
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
-|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- |
+| 1. |  |  |  |  |  |
+| 2. |  |  |  |  |  |
+| 3. |  |  |  |  |  |
+| 4. |  |  |  |  |  |
+| 5. |  |  |  |  |  |
 
 **Did it help, and how do I know:**
 
@@ -341,19 +401,6 @@ learned:**
 <!-- Two sentences. Your confusion matrix is the evidence. -->
 
 <!-- ═════════════════════════════════════════════════════════════════════
-
-     SUBMISSION CHECKLIST — unit 5
-
-       [ ] criteria.md has five numbered criteria, each naming a NUMBER
-       [ ] Each has a reason underneath tied to your data or taxonomy
-       [ ] labels.csv: at least 150 rows, text/label/note, ONE file not split
-       [ ] No label above 70%
-       [ ] All five unit 5 sections have real content
-       [ ] Label Taxonomy includes the decision rule for your hardest boundary
-       [ ] The Dataset includes three hard cases
-       [ ] results.json and test_split.csv committed (the notebook does this)
-       [ ] At least four new commits
-       [ ] Repository URL submitted — WRITE IT DOWN
 
      SUBMISSION CHECKLIST — unit 6
 
