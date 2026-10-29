@@ -226,7 +226,15 @@ After the first run, I added a threshold measurement to evaluate (section 5) so 
 | **heads_up** | 0 | 0 | 29 |
 
 **My biggest off-diagonal number, and what it means:**
-The biggest off-diagonal number is 13 real `opinion` posts called `heads_up`, and `report` shows the same pattern (6 of 6 called `heads_up`). The model never predicts `opinion` or `report`, so both boundaries with `heads_up` are unlearned in one direction.
+On seed 42, 11 of 13 real `opinion` posts are called `heads_up`, the biggest off-diagonal number. The model never predicts `report` on seed 42, and 5 of 6 real `report` posts are called `opinion`. On seeds 7 and 2024 the model does predict `report` and `opinion`, but most of its guesses still go to `heads_up`.
+
+### Confusion matrix — after (seed 42)
+
+| true \ predicted | opinion | report | heads_up |
+| --- | --- | --- | --- |
+| **opinion** | 2 | 0 | 11 |
+| **report** | 5 | 0 | 1 |
+| **heads_up** | 3 | 0 | 26 |
 
 ---
 
@@ -379,26 +387,32 @@ Eight of my eleven disagreements are posts staff labeled `analysis`, and I label
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 | --- | --- | --- | --- | --- | --- |
-| 1. |  |  |  |  |  |
-| 2. |  |  |  |  |  |
-| 3. |  |  |  |  |  |
-| 4. |  |  |  |  |  |
-| 5. |  |  |  |  |  |
+| 1. Accuracy | >= 0.75 | 0.583 | 0.604 | 0.562 | MISSED |
+| 2. Staff agreement | >= 20/30 | 19/30 | same | same | MISSED |
+| 3. >= 30 posts per label | >= 30 | 38 / 88 / 189 | same | same | MET |
+| 4. F1 >= 0.60 each label | >= 0.60 | `opinion` 0.174, `report` 0.000, `heads_up` 0.776 | `opinion` 0.000, `report` 0.364, `heads_up` 0.750 | `opinion` 0.190, `report` 0.500, `heads_up` 0.687 | MISSED |
+| 5. Confidence | 80% at 0.6+, 50% below | 0.6+: no posts; below: 58.3% (48) | 0.6+: no posts; below: 60.4% (48) | 0.6+: no posts; below: 56.2% (48) | MISSED |
 
 **Did it help, and how do I know:**
 
-<!-- If it didn't, say so. Relabelling that didn't help is a genuinely
-     interesting result and earns full credit. -->
+Partly. Macro F1 rose on all three seeds, from 0.251 to 0.317, 0.371 and 0.459, and the model now predicts `report` and `opinion` on some posts. But accuracy fell on seeds 42 and 2024 and stayed the same on seed 7, and no criterion moved to MET. The macro F1 gain depends mostly on `report`, which has six test posts per seed, so a change of one or two posts moves it a lot. I wouldn't call this run better without more data. The clearest change is in the matrix: `report` posts are now sometimes predicted as `report` (seeds 7 and 2024), where before the model never predicted it.
 
 ---
 
 ## What's Still Broken
 
-<!-- For each criterion still missed: what you'd do, and why you stopped. -->
+**Criterion 1 (accuracy ≥ 0.75).** Still missed on every seed, at 0.56 to 0.60. Next I'd collect more labeled posts before changing the training again, since 315 posts limit what any setting can learn here. I stopped at one change because the unit allows one, and a single measured change is easier to read than several untested ones.
+
+**Criterion 2 (staff agreement ≥ 20/30).** Still missed at 19/30. This is about my labels, not the model. The next step is to re-read the eleven disagreements against Rule 1 and Rule 2, starting with sp_004 to sp_008, and to label future posts with those rules in front of me. I didn't re-label after seeing the staff labels, so 19/30 is the count on my original labels.
+
+**Criterion 4 (F1 ≥ 0.60 on each label).** Still missed on every seed. `opinion` ranges from 0.000 to 0.190 and `report` from 0.000 to 0.500. Both labels have few test posts, so these scores are noisy, but none reaches the target. The next step is more `report` and `opinion` posts, since the label counts are the limit here.
+
+**Criterion 5 (confidence).** The class weights spread the model's probability across three labels, so none of its predictions reach 0.6 confidence on any seed. The 80% half can't be tested, and the below-0.6 group is above 50% on all three seeds. Next I'd look at whether milder weights help, or whether the criterion needs a different measure of confidence. I stopped here for the same reason as criterion 1.
 
 **The gap between what I meant my labels to capture and what the model
 learned:**
-<!-- Two sentences. Your confusion matrix is the evidence. -->
+
+I meant `report` to capture a post that can be checked against a public record. The model learned that `report` is rare: on seed 42 it never predicts `report`, and it sends most real `report` posts to `opinion`. I meant `opinion` to capture an unverifiable personal anecdote. The model learned to send most of those posts to `heads_up`, the majority label. On seeds 7 and 2024 it predicts all three labels, but most of its guesses still go to `heads_up`, so what it learned is closer to "this post is probably `heads_up`" than to the distinctions I wrote down.
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
