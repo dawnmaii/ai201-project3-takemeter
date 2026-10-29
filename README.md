@@ -426,27 +426,6 @@ learned:**
 
 I meant `report` to capture a post that can be checked against a public record. The model learned that `report` is rare: on seed 42 it never predicts `report`, and it sends most real `report` posts to `opinion`. I meant `opinion` to capture an unverifiable personal anecdote. The model learned to send most of those posts to `heads_up`, the majority label. On seed 2024 it predicts all three labels, and on seed 7 it predicts `report` but never `opinion`. Most of its guesses on both seeds still go to `heads_up`, so what it learned is closer to "this post is probably `heads_up`" than to the distinctions I wrote down.
 
-<!-- ═════════════════════════════════════════════════════════════════════
-
-     SUBMISSION CHECKLIST — unit 6
-
-       [ ] Baseline vs. Trained table, with your prediction written beforehand
-       [ ] Run Log — Before, five criteria across three seeds
-       [ ] Confusion matrix TYPED AS A MARKDOWN TABLE
-       [ ] A verdict on every criterion
-       [ ] A diagnosis for every miss, using the agreement report as evidence
-       [ ] Agreement Report with every disagreement adjudicated
-       [ ] One improvement, with Run Log — After
-       [ ] What's Still Broken
-       [ ] results_three_seeds_before.json, results_three_seeds_after.json,
-           baseline_results.json and
-           agreement_results.json committed
-       [ ] At least four new commits
-       [ ] The SAME repository URL as last unit
-
-     Do not delete and recreate this repository.
-     ═════════════════════════════════════════════════════════════════════ -->
-
 ---
 
 📖 **How to run this project: [RUNNING.md](RUNNING.md)**
